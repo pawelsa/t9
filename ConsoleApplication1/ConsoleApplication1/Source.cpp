@@ -7,9 +7,11 @@
 #define INDEX(c) ((int)c - (int)'a')
 
 char** words;
-int size = 0;
+int length = 0;
+int letter[16];
 
 	int read() {
+	int size=0;
 	FILE *f;
 	f = fopen("dictionary.txt", "r");
 
@@ -30,7 +32,7 @@ int size = 0;
 	}
 	fclose(f);
 	return size;
-};
+}
 
 	// trie node
 	struct DICTIONARY
@@ -81,48 +83,60 @@ int size = 0;
 		pCrawl->word_end = true;
 	}
 
-	// Returns true if key presents in trie, else false
-	bool search(struct DICTIONARY *root, const char *key)
-	{
-		int level;
-		int length = strlen(key);
-		int index;
-		struct DICTIONARY *pCrawl = root;
+	int look_for(DICTIONARY *temp, int a) {
 
-		for (level = 0; level < length; level++)
-		{
-			index = INDEX(key[level]);
+		if (!temp)
+			return NULL;
 
-			if (!pCrawl->word[index])
-				return false;
-
-			pCrawl = pCrawl->word[index];
+		letter[length] = a;
+		length++;
+		
+		if (temp->word_end == 1) {
+			for (int i = 0; letter[i] != -1; i++) {
+				printf("%c", (letter[i] + 'a'));
+			}
+			printf(" ");
 		}
 
-		return (pCrawl != NULL && pCrawl->word_end);
+		int i;
+		for (i = 0; i < ALPHABET_SIZE; i++) {
+			look_for(temp->word[i],i);
+			
+			letter[length]=-1;
+		}
+		
+		length--;
+		
 	}
+	
 
 	// Driver
 	int main()
 	{
 		//char K[][5] = { " ",".?!","ABC","DEF","GHI","JKL","MNO","PQRS","TUV","WXYZ" };
 
-		char output[][32] = { "Not present in trie", "Present in trie" };
-
 		int size = read();
 
 		struct DICTIONARY *root = create();
+		struct DICTIONARY *temp;
 
 		// Construct trie
 		for (int i = 0; i < size; i++)
 			enter(root, words[i]);
 		free(words);
-		
+
+		temp = root;
+
+		for (int i = 0; i < 17; i++)
+			letter[i] = -1;
+
+		look_for(temp->word[0],0);
+
 		// Search for different keys
-		printf("%s --- %s\n", "hello", output[search(root, "hello")]);
+		/*printf("%s --- %s\n", "hello", output[search(root, "hello")]);
 		printf("%s --- %s\n", "tie", output[search(root, "tie")]);
 		printf("%s --- %s\n", "red", output[search(root, "red")]);
 		printf("%s --- %s\n", "thaw", output[search(root, "thaw")]);
-
+		*/
 		return 0;
 	}
