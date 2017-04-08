@@ -9,6 +9,9 @@
 char** words;
 int length = 0;
 int letter[16];
+int scanned[16];
+char K[][5] = { " ",".?!","ABC","DEF","GHI","JKL","MNO","PQRS","TUV","WXYZ" };
+const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 
 	int read() {
 	int size=0;
@@ -83,8 +86,17 @@ int letter[16];
 		pCrawl->word_end = true;
 	}
 
-	int look_for(DICTIONARY *temp, int a) {
+	int check(int length) {
 
+		if (scanned[length] != -1)
+			return number[scanned[length]];
+		else
+			return 29;
+
+	}
+
+	int look_for(DICTIONARY *temp, int a) {
+		
 		if (!temp)
 			return NULL;
 
@@ -98,22 +110,27 @@ int letter[16];
 			printf(" ");
 		}
 
-		int i;
-		for (i = 0; i < ALPHABET_SIZE; i++) {
-			look_for(temp->word[i],i);
-			
-			letter[length]=-1;
-		}
+		if(check(length)<28)
+			for (int i = check(length); i < check(length + 1); i++) {
+				look_for(temp->word[i], i);
+
+				letter[length] = -1;
+			}
+		else
+			for (int i = 0; i < ALPHABET_SIZE; i++) {
+				look_for(temp->word[i], i);
+
+				letter[length] = -1;
+			}
 		
 		length--;
-		
 	}
+	
 	
 
 	// Driver
 	int main()
 	{
-		//char K[][5] = { " ",".?!","ABC","DEF","GHI","JKL","MNO","PQRS","TUV","WXYZ" };
 
 		int size = read();
 
@@ -127,16 +144,23 @@ int letter[16];
 
 		temp = root;
 
-		for (int i = 0; i < 17; i++)
+		for (int i = 0; i < 17; i++) {
 			letter[i] = -1;
+			scanned[i] = -1;
+		}
 
-		look_for(temp->word[0],0);
+		scanned[0] = 0;
 
-		// Search for different keys
-		/*printf("%s --- %s\n", "hello", output[search(root, "hello")]);
-		printf("%s --- %s\n", "tie", output[search(root, "tie")]);
-		printf("%s --- %s\n", "red", output[search(root, "red")]);
-		printf("%s --- %s\n", "thaw", output[search(root, "thaw")]);
+		for (int i = 0; i < 3; i++)
+			look_for(temp->word[number[scanned[length]]], 3);
+
+		/*
+		int length = 0;
+		int letter[16];
+		int scanned[16];
+		char K[][5] = { " ",".?!","ABC","DEF","GHI","JKL","MNO","PQRS","TUV","WXYZ" };
+		const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 		*/
+
 		return 0;
 	}
