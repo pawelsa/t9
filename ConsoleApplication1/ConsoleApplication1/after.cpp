@@ -10,6 +10,7 @@ char** words;
 int length = 0;
 int letter[16];
 int scanned[16];
+char K[][5] = { " ",".?!","ABC","DEF","GHI","JKL","MNO","PQRS","TUV","WXYZ" };
 const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 
 	int read() {
@@ -22,6 +23,7 @@ const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 		if (getc(f) == '\n')
 			size++;
 	}
+
 	
 	words = (char**)malloc((size) * sizeof(char*));
 
@@ -35,6 +37,7 @@ const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 	return size;
 }
 
+	// trie node
 	struct DICTIONARY
 	{
 		struct DICTIONARY *word[ALPHABET_SIZE];
@@ -68,20 +71,19 @@ const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 		int length = strlen(words);
 		int index;
 		
-		struct DICTIONARY *temp = root;
+		struct DICTIONARY *pCrawl = root;
 
 		for (level = 0; level < length; level++)
 		{
 			index = INDEX(words[level]);
+			if (!pCrawl->word[index])
+				pCrawl->word[index] = create();
 
-			if (!temp->word[index])
-				temp->word[index] = create();
-
-			temp = temp->word[index];
+			pCrawl = pCrawl->word[index];
 		}
 
-		// Mark last node as leaf
-		temp->word_end = true;
+		// mark last node as leaf
+		pCrawl->word_end = true;
 	}
 
 	int check(int length) {
@@ -98,10 +100,10 @@ const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 		if (!temp)
 			return NULL;
 
-			letter[length] = a;
-			length++;
-
-		if (temp->word_end == 1) {		// Print complete word
+		letter[length] = a;
+		length++;
+		
+		if (temp->word_end == 1) {
 			for (int i = 0; letter[i] != -1; i++) {
 				printf("%c", (letter[i] + 'a'));
 			}
@@ -109,7 +111,7 @@ const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 		}
 
 		if(check(length)<28)
-			for (int i = check(length); i < number[scanned[length] + 1]; i++) {
+			for (int i = check(length); i < check(length + 1); i++) {
 				look_for(temp->word[i], i);
 
 				letter[length] = -1;
@@ -142,26 +144,23 @@ const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 
 		temp = root;
 
-		for (int i = 0; i < 17; letter[i] = -1, scanned[i] = -1, i++);
-
-		printf("Enter numbers (2-9) one by one (0 ends input) : ");
-		for(int i=0;i<16;){
-			scanf("%d", &scanned[i]);
-			if ((scanned[i] > 1) && (scanned[i] < 10)) {
-				scanned[i] -= 2;
-				i++;
-			}
-			else if (scanned[i] == 0) {
-				scanned[i] = -1;
-				break;
-			}
-			else
-				printf("Wrong input!");
+		for (int i = 0; i < 17; i++) {
+			letter[i] = -1;
+			scanned[i] = -1;
 		}
 
-		int j = 0;
-		for (int i = check(length); i < number[scanned[length] + 1]; i++, j++)
-			look_for(temp->word[number[scanned[length]] + j], (number[scanned[length]] + j));
+		scanned[0] = 0;
+
+		for (int i = 0; i < 3; i++)
+			look_for(temp->word[number[scanned[length]]], 3);
+
+		/*
+		int length = 0;
+		int letter[16];
+		int scanned[16];
+		char K[][5] = { " ",".?!","ABC","DEF","GHI","JKL","MNO","PQRS","TUV","WXYZ" };
+		const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
+		*/
 
 		return 0;
 	}
