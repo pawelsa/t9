@@ -12,7 +12,15 @@ int letter[16];
 int scanned[16];
 const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 
+struct DICTIONARY
+	{
+		struct DICTIONARY *word[ALPHABET_SIZE];
+
+		bool word_end; //if true - end of the word
+	};
+
 	int read() {
+	
 	int size=0;
 	FILE *f;
 	f = fopen("dictionary.txt", "r");
@@ -27,7 +35,7 @@ const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 
 	fseek(f, 0, SEEK_SET);
 
-	for (int i = 0; getc(f) != EOF; i++) {
+	for (int i = 0; getc(f) != EOF; i++) {	//add to structure from file
 		words[i] = (char*)malloc(16 * sizeof(char*));
 		fscanf(f, "%s", words[i]);
 	}
@@ -35,34 +43,24 @@ const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 	return size;
 }
 
-	struct DICTIONARY
+	struct DICTIONARY *create(void)	//creates a new node to structure
 	{
-		struct DICTIONARY *word[ALPHABET_SIZE];
+		struct DICTIONARY *nNode = NULL;
 
-		bool word_end; //IF TRUE - END OF WORD
-	};
+		nNode = (struct DICTIONARY *)malloc(sizeof(struct DICTIONARY));
 
-	// Returns new trie node (initialized to NULLs)
-	struct DICTIONARY *create(void)
-	{
-		struct DICTIONARY *pNode = NULL;
-
-		pNode = (struct DICTIONARY *)malloc(sizeof(struct DICTIONARY));
-
-		if (pNode)
+		if (nNode)
 		{
-			pNode->word_end = false;
+			nNode->word_end = false;
 
 			for (int i = 0; i < ALPHABET_SIZE; i++)
-				pNode->word[i] = NULL;
+				nNode->word[i] = NULL;
 		}
 
-		return pNode;
+		return nNode;
 	}
 
-	// If not present, inserts key into trie
-	// If the key is prefix of trie node, just marks leaf node
-	void enter(struct DICTIONARY *root, char *words)
+	void enter(struct DICTIONARY *root, char *words)	//adds words to strusture
 	{
 		int level;
 		int length = strlen(words);
@@ -80,11 +78,10 @@ const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 			temp = temp->word[index];
 		}
 
-		// Mark last node as leaf
-		temp->word_end = true;
+		temp->word_end = true;	// Mark last node as leaf
 	}
 
-	int check(int length) {
+	int check(int length) {		//checks in what range of letters it should look for words depends on information if any key was pressed
 
 		if (scanned[length] != -1)
 			return number[scanned[length]];
@@ -140,18 +137,20 @@ const int number[9] = { 0, 3, 6, 9, 12, 16, 19, 24,28 };
 			enter(root, words[i]);
 		free(words);
 
+
 		temp = root;
 
 		for (int i = 0; i < 17; letter[i] = -1, scanned[i] = -1, i++);
 
 		printf("Enter numbers (2-9) one by one (0 ends input) : ");
+		
 		for(int i=0;i<16;){
 			scanf("%d", &scanned[i]);
-			if ((scanned[i] > 1) && (scanned[i] < 10)) {
+			if ((scanned[i] > 1) && (scanned[i] < 10)) {	//check if input was correct
 				scanned[i] -= 2;
 				i++;
 			}
-			else if (scanned[i] == 0) {
+			else if (scanned[i] == 0) {		//if input == 0 => end of inputs
 				scanned[i] = -1;
 				break;
 			}
